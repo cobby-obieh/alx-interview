@@ -1,39 +1,35 @@
 #!/usr/bin/python3
-"""stats module
-"""
-from sys import stdin
+"""log parsing"""
+import sys
 
 
-codes = {'200': 0, '301': 0, '400': 0, '401': 0,
-         '403': 0, '404': 0, '405': 0, '500': 0}
-size = 0
+def print_data(total_file_size, status_code_data):
+    """prints total size and status code count"""
+    print('File size: {}'.format(total_file_size))
+    for k, v in sorted(status_code_data.items()):
+        if v != 0:
+            print('{}: {}'.format(k, v))
 
 
-def print_info():
-    """print_info method print needed info
-
-    Args:
-        codes (dict): code status
-        size (int): size of files
-    """
-    print("File size: {}".format(size))
-    for key, val in sorted(codes.items()):
-        if val > 0:
-            print("{}: {}".format(key, val))
-
-if __name__ == '__main__':
-    try:
-        for i, line in enumerate(stdin, 1):
-            try:
-                info = line.split()
-                size += int(info[-1])
-                if info[-2] in codes.keys():
-                    codes[info[-2]] += 1
-            except:
-                pass
-            if not i % 10:
-                print_info()
-    except KeyboardInterrupt:
-        print_info()
-        raise
-    print_info()
+status_codes = ['200', '301', '400', '401', '403', '404', '405', '500']
+status_code_data = {code: 0 for code in status_codes}
+total_file_size = 0
+try:
+    count = 0
+    for line in sys.stdin:
+        splitstr = line.split()
+        try:
+            total_file_size += int(splitstr[-1])
+            code = splitstr[-2]
+            if code in status_code_data:
+                count += 1
+                status_code_data[code] += 1
+                if count % 10 == 0:
+                    print_data(total_file_size, status_code_data)
+        except:
+            pass
+except KeyboardInterrupt:
+    print_data(total_file_size, status_code_data)
+    raise
+else:
+    print_data(total_file_size, status_code_data)
